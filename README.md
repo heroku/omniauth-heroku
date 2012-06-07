@@ -7,9 +7,11 @@ Heroku's support for OAuth is still private/experimental.
 
 ## Basic Usage
 
-    use OmniAuth::Builder do
-      provider :heroku, ENV['HEROKU_KEY'], ENV['HEROKU_SECRET']
-    end
+```ruby
+use OmniAuth::Builder do
+  provider :heroku, ENV['HEROKU_KEY'], ENV['HEROKU_SECRET']
+end
+```
 
 
 ## Meta

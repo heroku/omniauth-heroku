@@ -18,15 +18,11 @@ module OmniAuth
       uid { raw_info['id'] }
 
       info do
-        {
-          'email'   => raw_info['email'],
-          'api_key' => raw_info['api_key'],
-          'token'   => raw_info['api_key'], # compatibility
-        }
+        { 'email' => raw_info['email'] }
       end
 
       extra do
-        {:raw_info => raw_info}
+        { 'raw_info' => raw_info }
       end
 
       def raw_info

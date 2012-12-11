@@ -1,6 +1,6 @@
 # OmniAuth Heroku
 
-OmniAuth strategy for authenticating to Heroku.
+[OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating to Heroku.
 
 Heroku's support for OAuth is still private/experimental.
 

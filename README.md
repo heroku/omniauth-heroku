@@ -11,7 +11,7 @@ OmniAuth works as a Rack middleware. Mount this Heroku adapter with:
 
 ```ruby
 use OmniAuth::Builder do
-  provider :heroku, ENV['HEROKU_ID'], ENV['HEROKU_SECRET']
+  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET']
 end
 ```
 
@@ -33,7 +33,7 @@ Under `config/initializers/omniauth.rb`:
 
 ```ruby
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :heroku, ENV['HEROKU_ID'], ENV['HEROKU_SECRET']
+  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET']
 end
 ```
 

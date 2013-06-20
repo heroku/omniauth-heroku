@@ -78,7 +78,7 @@ Be careful if you intend to store access tokens in cookie-based sessions.
 
 Many web frameworks offer protection against session tampering, but still store sessions with no encryption. This allows attackers with some access to the user session to obtain valuable information from cookies.
 
-Rails, Django and others can be configured to encrypt cookies, but don't do it by default. So make sure to encrypt cookie-based sessions before storing confidential data on it!
+Rails, Sinatra and others can be configured to encrypt cookies, but don't do it by default. So make sure to encrypt cookie-based sessions before storing confidential data on it!
 
 
 ## Meta

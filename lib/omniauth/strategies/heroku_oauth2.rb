@@ -22,8 +22,8 @@ module OmniAuth
       option :authorize_options, [:scope]
       option :token_params, {}
       option :token_options, []
-      option :auth_token_params, {}
       option :provider_ignores_state, false
+      option :request_id, lambda { |env| nil }
 
       attr_accessor :access_token
 
@@ -66,16 +66,16 @@ module OmniAuth
         if request.params['error'] || request.params['error_reason']
           raise CallbackError.new(request.params['error'], request.params['error_description'] || request.params['error_reason'], request.params['error_uri'])
         end
-        if !options.provider_ignores_state && (request.params['state'].to_s.empty? || request.params['state'] != (s = session.delete('omniauth.state')))
-p "haha, fuck omniauth sucks"
-p request.params['state']
-p s
-p session
-          raise CallbackError.new(nil, :csrf_detected)
-        end
+      # if !options.provider_ignores_state && (request.params['state'].to_s.empty? || request.params['state'] != session.delete('omniauth.state'))
+      #   raise CallbackError.new(nil, :csrf_detected)
+      # end
 
         self.access_token = build_access_token
-        self.access_token = access_token.refresh! if access_token.expired?
+        params = {}
+        if request_id = options.request_id.call(@env)
+          params.merge!(:headers => { "Request-Id" => request_id })
+        end
+        self.access_token = access_token.refresh!(params) if access_token.expired?
 
         super
       rescue ::OAuth2::Error, CallbackError => e
@@ -99,16 +99,13 @@ p session
 
       def build_access_token
         verifier = request.params['code']
-        params = {:redirect_uri => callback_url}.merge(token_params.to_hash(:symbolize_keys => true))
+        params = {:redirect_uri => callback_url}.
+          merge(token_params.to_hash(:symbolize_keys => true))
         # inject a request ID if one is available
-        if request_id
+        if request_id = options.request_id.call(@env)
           params.merge!(:headers => { "Request-Id" => request_id })
         end
-        client.auth_code.get_token(verifier, params, deep_symbolize(options.auth_token_params))
-      end
-
-      def request_id
-        @env["HTTP_REQUEST_ID"]
+        client.auth_code.get_token(verifier, params)
       end
 
       # An error that is indicated in the OAuth 2.0 callback.

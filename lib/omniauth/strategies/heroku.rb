@@ -1,5 +1,3 @@
-require_relative 'heroku_oauth2'
-
 module OmniAuth
   module Strategies
     class Heroku < OmniAuth::Strategies::HerokuOAuth2

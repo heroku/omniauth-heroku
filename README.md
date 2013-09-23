@@ -13,6 +13,8 @@ use OmniAuth::Builder do
 end
 ```
 
+Obtain a `HEROKU_OAUTH_ID` and `HEROKU_OAUTH_SECRET` by creating a client with the [Heroku OAuth CLI plugin](https://github.com/heroku/heroku-oauth).
+
 Your Heroku OAuth client should be set to receive callbacks on `/auth/heroku/callback`.
 
 

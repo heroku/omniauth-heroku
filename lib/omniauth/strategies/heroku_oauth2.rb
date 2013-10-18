@@ -37,10 +37,19 @@ module OmniAuth
 
       credentials do
         hash = {'token' => access_token.token}
-        hash.merge!('refresh_token' => access_token.refresh_token) if access_token.expires? && access_token.refresh_token
-        hash.merge!('expires_at' => access_token.expires_at) if access_token.expires?
-        hash.merge!('expires' => access_token.expires?)
+        hash['refresh_token'] = access_token.refresh_token if access_token.expires? && access_token.refresh_token
+        hash['expires_at'] = access_token.expires_at if access_token.expires?
+        hash['expires'] = access_token.expires?
+        hash['token_type'] = access_token.params['token_type'] if access_token.params['token_type']
         hash
+      end
+
+      extra do
+        {'raw_info' => access_token.params}
+      end
+
+      uid do
+        access_token.params['user_id']
       end
 
       def request_phase

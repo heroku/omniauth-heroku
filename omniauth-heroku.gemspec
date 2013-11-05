@@ -13,4 +13,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'oauth2', '~> 0.8.0'
   gem.add_dependency 'omniauth', '~> 1.0'
+  gem.add_dependency 'heroku-api'
 end

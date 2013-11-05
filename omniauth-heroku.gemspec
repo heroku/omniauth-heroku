@@ -9,8 +9,9 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split("\n")
   gem.name          = "omniauth-heroku"
   gem.require_paths = ["lib"]
-  gem.version       = "0.1.1"
+  gem.version       = "0.1.2.pre"
 
+  gem.add_dependency 'oauth2', '~> 0.8.0'
   gem.add_dependency 'omniauth', '~> 1.0'
-  gem.add_dependency 'omniauth-oauth2', '~> 1.0'
+  gem.add_dependency 'heroku-api'
 end

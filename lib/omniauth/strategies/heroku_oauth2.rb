@@ -15,7 +15,6 @@ module OmniAuth
     class HerokuOAuth2 < OAuth2
       
       option :request_id, lambda { |env| nil }
-      option :app_urls, false
 
       def credentials
         hash = super
@@ -29,12 +28,6 @@ module OmniAuth
         email_hash        = Digest::MD5.hexdigest(raw_info['email'].to_s)
         default_image_url = "https://dashboard.heroku.com/ninja-avatar-48x48.png"
         image_url         = "https://secure.gravatar.com/avatar/#{email_hash}.png?d=#{default_image_url}"
-        
-        if options.app_urls == true
-          urls = heroku.get_apps.body.inject({}) do |apps, app|
-            apps.merge(app['name'] => app['web_url'])
-          end
-        end
         
         {
           :name => raw_info.delete('name'),

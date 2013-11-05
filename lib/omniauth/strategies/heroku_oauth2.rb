@@ -1,3 +1,4 @@
+require 'digest/md5'
 require 'cgi'
 require 'uri'
 require 'oauth2'
@@ -25,6 +26,10 @@ module OmniAuth
       info do
         first_name, last_name = raw_info.delete('name').to_s.split(/\s+/, 2)
         
+        email_hash        = Digest::MD5.hexdigest(raw_info['email'].to_s)
+        default_image_url = "https://dashboard.heroku.com/ninja-avatar-48x48.png"
+        image_url         = "https://secure.gravatar.com/avatar/#{email_hash}.png?d=#{default_image_url}"
+        
         if options.app_urls == true
           urls = heroku.get_apps.body.inject({}) do |apps, app|
             apps.merge(app['name'] => app['web_url'])
@@ -39,7 +44,7 @@ module OmniAuth
           :last_name => last_name,
           :location => nil,
           :description => nil,
-          :image => nil,
+          :image => image_url,
           :phone => nil,
           :urls => urls || {}
         }

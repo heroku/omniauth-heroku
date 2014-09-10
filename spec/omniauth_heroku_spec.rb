@@ -21,7 +21,7 @@ describe OmniAuth::Strategies::Heroku do
       body: MultiJson.encode(
         access_token: "token",
         expires_in:   3600,
-        user_id:      "1234-5678"))
+        user_id:      "ddc4beff-f08f-4856-99d2-ba5ac63c3eb9"))
 
     # start the callback, get the session state
     get "/auth/heroku"
@@ -34,6 +34,6 @@ describe OmniAuth::Strategies::Heroku do
     assert_equal 200, last_response.status
 
     omniauth_env = MultiJson.decode(last_response.body)
-    assert_equal "1234-5678", omniauth_env["uid"]
+    assert_equal "ddc4beff-f08f-4856-99d2-ba5ac63c3eb9", omniauth_env["uid"]
   end
 end

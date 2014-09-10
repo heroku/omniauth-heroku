@@ -2,6 +2,7 @@
 
 [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating to Heroku.
 
+[![Build Status](https://travis-ci.org/heroku/omniauth-heroku.svg?branch=master)](https://travis-ci.org/heroku/omniauth-heroku)
 
 ## Configuration
 

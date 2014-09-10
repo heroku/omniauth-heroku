@@ -34,6 +34,7 @@ describe OmniAuth::Strategies::Heroku do
     assert_equal 200, last_response.status
 
     omniauth_env = MultiJson.decode(last_response.body)
+    assert_equal "heroku", omniauth_env["provider"]
     assert_equal "ddc4beff-f08f-4856-99d2-ba5ac63c3eb9", omniauth_env["uid"]
   end
 end

@@ -13,4 +13,22 @@ describe OmniAuth::Strategies::Heroku do
     assert_equal ["http://example.org/auth/heroku/callback"],
       redirect_params["redirect_uri"]
   end
+
+  it "receives the callback" do
+   stub_request(:post, "https://id.heroku.com/oauth/token").
+     to_return(
+      headers: { "Content-Type" => "application/json" },
+      body: MultiJson.encode(access_token: "token", expires_in: 3600))
+
+    # start the callback, get the session state
+    get "/auth/heroku"
+    assert_equal 302, last_response.status
+    state = last_response.headers["Location"].match(/state=([\w\d]+)/)[1]
+
+    # trigger the callback setting the state as a param and in the session
+    get "/auth/heroku/callback", { "state" => state },
+      { "rack.session" => { "omniauth.state" => state }}
+
+    assert_equal "logged in", last_response.body
+  end
 end

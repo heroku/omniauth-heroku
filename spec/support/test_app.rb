@@ -12,4 +12,8 @@ class TestApp < Sinatra::Application
   get "/" do
     "ohhai"
   end
+
+  get "/auth/heroku/callback" do
+    "logged in"
+  end
 end

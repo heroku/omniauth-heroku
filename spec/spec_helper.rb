@@ -11,7 +11,11 @@ require "cgi"
 require "rspec"
 require "rack/test"
 require "sinatra"
+require "webmock/rspec"
+
 Dir["./spec/support/*.rb"].each { |f| require f }
+
+WebMock.disable_net_connect!
 
 RSpec.configure do |config|
   config.include Rack::Test::Methods

@@ -11,6 +11,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = "0.1.1"
 
-  gem.add_dependency 'omniauth', '~> 1.0'
-  gem.add_dependency 'omniauth-oauth2', '~> 1.0'
+  gem.add_dependency 'omniauth', '~> 1.2'
+  gem.add_dependency 'omniauth-oauth2', '~> 1.2'
 end

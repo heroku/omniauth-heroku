@@ -3,6 +3,7 @@ class TestApp < Sinatra::Application
     enable :sessions
     set :show_exceptions, false
     set :session_secret, ENV["SESSION_SECRET"]
+    OmniAuth.config.logger = Logger.new(StringIO.new)
   end
 
   use OmniAuth::Builder do

@@ -18,7 +18,10 @@ describe OmniAuth::Strategies::Heroku do
    stub_request(:post, "https://id.heroku.com/oauth/token").
      to_return(
       headers: { "Content-Type" => "application/json" },
-      body: MultiJson.encode(access_token: "token", expires_in: 3600))
+      body: MultiJson.encode(
+        access_token: "token",
+        expires_in:   3600,
+        user_id:      "1234-5678"))
 
     # start the callback, get the session state
     get "/auth/heroku"
@@ -28,7 +31,9 @@ describe OmniAuth::Strategies::Heroku do
     # trigger the callback setting the state as a param and in the session
     get "/auth/heroku/callback", { "state" => state },
       { "rack.session" => { "omniauth.state" => state }}
+    assert_equal 200, last_response.status
 
-    assert_equal "logged in", last_response.body
+    omniauth_env = MultiJson.decode(last_response.body)
+    assert_equal "1234-5678", omniauth_env["uid"]
   end
 end

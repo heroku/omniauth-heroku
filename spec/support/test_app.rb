@@ -15,6 +15,6 @@ class TestApp < Sinatra::Application
   end
 
   get "/auth/heroku/callback" do
-    "logged in"
+    MultiJson.encode(env['omniauth.auth'])
   end
 end

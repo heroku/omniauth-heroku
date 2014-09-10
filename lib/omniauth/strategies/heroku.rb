@@ -10,6 +10,10 @@ module OmniAuth
         :authorize_url => "#{BaseAuthUrl}/oauth/authorize",
         :token_url => "#{BaseAuthUrl}/oauth/token"
       }
+
+      uid do
+        access_token.params["user_id"]
+      end
     end
   end
 end

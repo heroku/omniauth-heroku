@@ -46,7 +46,7 @@ class Myapp < Sinatra::Application
 
   get "/auth/heroku/callback" do
     access_token = env['omniauth.auth']['credentials']['token']
-    heroku_api = Heroku::API.new(:api_key => access_token)
+    heroku_api = Heroku::API.new(api_key: access_token)
     "You have #{api.get_apps.body.size} apps"
   end
 end
@@ -81,7 +81,7 @@ class SessionsController < ApplicationController
 
   def create
     access_token = request.env['omniauth.auth']['credentials']['token']
-    heroku_api = Heroku::API.new(:api_key => access_token)
+    heroku_api = Heroku::API.new(api_key: access_token)
     @apps = api.get_apps.body
   end
 end

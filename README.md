@@ -28,6 +28,30 @@ Once the authorization flow is complete and the user is bounced back to your app
 We recommend using this access token together with [Heroku.rb](https://github.com/heroku/heroku.rb) to make API calls on behalf of the user.
 
 
+## Example - Sinatra
+
+```ruby
+class Myapp < Sinatra::Application
+  configure do
+    enable :sessions
+  end
+
+  use OmniAuth::Builder do
+    provider :heroku, ENV["HEROKU_OAUTH_ID"], ENV["HEROKU_OAUTH_SECRET"]
+  end
+
+  get "/" do
+    redirect "/auth/heroku"
+  end
+
+  get "/auth/heroku/callback" do
+    access_token = env['omniauth.auth']['credentials']['token']
+    heroku_api = Heroku::API.new(:api_key => access_token)
+    "You have #{api.get_apps.body.size} apps"
+  end
+end
+```
+
 ## Example - Rails
 
 Under `config/initializers/omniauth.rb`:

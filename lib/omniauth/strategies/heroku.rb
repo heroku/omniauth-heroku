@@ -4,7 +4,7 @@ module OmniAuth
   module Strategies
     class Heroku < OmniAuth::Strategies::OAuth2
       AuthUrl = ENV["HEROKU_AUTH_URL"] || "https://id.heroku.com"
-      ApiUrl  = ENV["HEROKU_API_URL"] || "https://api.heroku.com"
+      ApiUrl  = ENV["HEROKU_API_URL"]  || "https://api.heroku.com"
 
       option :client_options, {
         site:          AuthUrl,

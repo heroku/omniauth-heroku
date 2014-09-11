@@ -70,7 +70,7 @@ describe OmniAuth::Strategies::Heroku do
     # now make sure there's additional info in the omniauth env
     omniauth_env = MultiJson.decode(last_response.body)
     assert_equal "heroku", omniauth_env["provider"]
-    assert_equal "ddc4beff-f08f-4856-99d2-ba5ac63c3eb9", omniauth_env["uid"]
+    assert_equal @user_id, omniauth_env["uid"]
     assert_equal "john@example.org", omniauth_env["info"]["email"]
     assert_equal "John", omniauth_env["info"]["name"]
     assert_equal account_info, omniauth_env["extra"]

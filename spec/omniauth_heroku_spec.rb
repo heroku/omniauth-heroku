@@ -47,10 +47,12 @@ describe OmniAuth::Strategies::Heroku do
     @app = make_app(fetch_info: true)
 
     # stub the API call to heroku
+    account_info = {
+      "email" => "john@example.org",
+      "name"  =>  "John"
+    }
     stub_request(:get, "https://api.heroku.com/account").
-      to_return(body: MultiJson.encode(
-        email: "john@example.org",
-        name:  "John"))
+      to_return(body: MultiJson.encode(account_info))
 
     # do the oauth dance
     get "/auth/heroku"
@@ -67,5 +69,6 @@ describe OmniAuth::Strategies::Heroku do
     assert_equal "ddc4beff-f08f-4856-99d2-ba5ac63c3eb9", omniauth_env["uid"]
     assert_equal "john@example.org", omniauth_env["info"]["email"]
     assert_equal "John", omniauth_env["info"]["name"]
+    assert_equal account_info, omniauth_env["extra"]
   end
 end

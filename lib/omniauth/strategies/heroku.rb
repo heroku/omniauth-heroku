@@ -36,6 +36,14 @@ module OmniAuth
         end
       end
 
+      extra do
+        if options.fetch_info
+          account_info
+        else
+          {}
+        end
+      end
+
       def account_info
         @account_info ||= MultiJson.decode(heroku_api.get("/account").body)
       end

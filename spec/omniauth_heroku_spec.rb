@@ -29,12 +29,8 @@ describe OmniAuth::Strategies::Heroku do
   end
 
   it "receives the callback" do
-    # start the callback, get the session state
-    get "/auth/heroku"
-    assert_equal 302, last_response.status
-    state = last_response.headers["Location"].match(/state=([\w\d]+)/)[1]
-
     # trigger the callback setting the state as a param and in the session
+    state = SecureRandom.hex(8)
     get "/auth/heroku/callback", { "state" => state },
       { "rack.session" => { "omniauth.state" => state }}
     assert_equal 200, last_response.status
@@ -58,11 +54,8 @@ describe OmniAuth::Strategies::Heroku do
       with(headers: { "Authorization" => "Bearer #{@token}" }).
       to_return(body: MultiJson.encode(account_info))
 
-    # do the oauth dance
-    get "/auth/heroku"
-    assert_equal 302, last_response.status
-    state = last_response.headers["Location"].match(/state=([\w\d]+)/)[1]
-
+    # hit the OAuth callback
+    state = SecureRandom.hex(8)
     get "/auth/heroku/callback", { "state" => state },
       { "rack.session" => { "omniauth.state" => state }}
     assert_equal 200, last_response.status

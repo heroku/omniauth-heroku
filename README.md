@@ -38,7 +38,7 @@ Once the authorization flow is complete and the user is bounced back to your app
 
 We recommend using this access token together with [Heroku.rb](https://github.com/heroku/heroku.rb) to make API calls on behalf of the user.
 
-When `fetch_info` is set you'll also have the user name and email address in `env["omniauth.auth"]["info"]`.
+When `fetch_info` is set you'll also have the user name and email address in `env["omniauth.auth"]["info"]`, and [additional Heroku account information](https://devcenter.heroku.com/articles/platform-api-reference#account) in `env["omniauth.auth"]["extra"]`.
 
 ## Example - Sinatra
 

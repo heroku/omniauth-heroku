@@ -4,6 +4,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{OmniAuth strategy for Heroku.}
   gem.summary       = %q{OmniAuth strategy for Heroku.}
   gem.homepage      = "https://github.com/heroku/omniauth-heroku"
+  gem.license       = "MIT"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")

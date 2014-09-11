@@ -7,9 +7,9 @@ module OmniAuth
       ApiUrl  = ENV["HEROKU_API_URL"] || "https://api.heroku.com"
 
       option :client_options, {
-        :site => AuthUrl,
-        :authorize_url => "#{AuthUrl}/oauth/authorize",
-        :token_url => "#{AuthUrl}/oauth/token"
+        site:          AuthUrl,
+        authorize_url: "#{AuthUrl}/oauth/authorize",
+        token_url:     "#{AuthUrl}/oauth/token"
       }
 
       # whether we should make another API call to Heroku to fetch

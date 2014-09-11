@@ -45,6 +45,21 @@ This sets name and email in the [omniauth auth hash](https://github.com/intridea
 
 It will also add [additional Heroku account info](https://devcenter.heroku.com/articles/platform-api-reference#account) to `env["omniauth.auth"]["extra"]`.
 
+### OAuth scopes
+
+[Heroku supports different OAuth scopes](https://devcenter.heroku.com/articles/oauth#scopes). By default this strategy will request global access to the account, but you're encouraged to request for less permissions when possible.
+
+To do so, configure it like:
+
+```ruby
+use OmniAuth::Builder do
+  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET'],
+    scope: "identity"
+end
+```
+
+This will trim down the permissions associated to the access token given back to you.
+
 
 ## Example - Sinatra
 

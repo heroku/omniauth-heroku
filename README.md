@@ -27,7 +27,7 @@ use OmniAuth::Builder do
 end
 ```
 
-This sets name, email and image in the [omniauth auth hash](https://github.com/intridea/omniauth/wiki/Auth-Hash-Schema).
+This sets name, email and additional Heroku account info in the [omniauth auth hash](https://github.com/intridea/omniauth/wiki/Auth-Hash-Schema).
 
 
 ## Usage

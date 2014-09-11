@@ -1,8 +1,13 @@
 # OmniAuth Heroku
 
-[OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating to Heroku.
+[OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating Heroku users.
 
 [![Build Status](https://travis-ci.org/heroku/omniauth-heroku.svg?branch=master)](https://travis-ci.org/heroku/omniauth-heroku)
+
+Mount this with your Rack application (be it Rails or Sinatra) to simplify the [OAuth flow with Heroku](https://devcenter.heroku.com/articles/oauth).
+
+This is intended for apps already using OmniAuth, for apps that authenticate against more than one service (eg: Heroku and GitHub), or apps that have specific needs on session management. If your app doesn't fall in any of these consider [Heroku Bouncer](https://github.com/heroku/heroku-bouncer) instead.
+
 
 ## Configuration
 

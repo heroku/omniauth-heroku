@@ -18,17 +18,6 @@ Obtain a `HEROKU_OAUTH_ID` and `HEROKU_OAUTH_SECRET` by creating a client with t
 
 Your Heroku OAuth client should be set to receive callbacks on `/auth/heroku/callback`.
 
-If you want this middleware to fetch additional Heroku account information like the user email address and name, use the `fetch_info` option, like:
-
-```ruby
-use OmniAuth::Builder do
-  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET'],
-    fetch_info: true
-end
-```
-
-This sets name, email and additional Heroku account info in the [omniauth auth hash](https://github.com/intridea/omniauth/wiki/Auth-Hash-Schema).
-
 
 ## Usage
 
@@ -38,7 +27,24 @@ Once the authorization flow is complete and the user is bounced back to your app
 
 We recommend using this access token together with [Heroku.rb](https://github.com/heroku/heroku.rb) to make API calls on behalf of the user.
 
-When `fetch_info` is set you'll also have the user name and email address in `env["omniauth.auth"]["info"]`, and [additional Heroku account information](https://devcenter.heroku.com/articles/platform-api-reference#account) in `env["omniauth.auth"]["extra"]`.
+Refer to the examples below to see how these work.
+
+
+### Basic account information
+
+If you want this middleware to fetch additional Heroku account information like the user email address and name, use the `fetch_info` option, like:
+
+```ruby
+use OmniAuth::Builder do
+  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET'],
+    fetch_info: true
+end
+```
+
+This sets name and email in the [omniauth auth hash](https://github.com/intridea/omniauth/wiki/Auth-Hash-Schema). You can access it from your app via `env["omniauth.auth"]["info"]`.
+
+It will also add [additional Heroku account info](https://devcenter.heroku.com/articles/platform-api-reference#account) to `env["omniauth.auth"]["extra"]`.
+
 
 ## Example - Sinatra
 

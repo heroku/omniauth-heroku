@@ -51,7 +51,10 @@ module OmniAuth
       def heroku_api
         @heroku_api ||= Faraday.new(
           url: ApiUrl,
-          headers: { "Accept" => "application/vnd.heroku+json; version=3" })
+          headers: {
+            "Accept" => "application/vnd.heroku+json; version=3",
+            "Authorization" => "Bearer #{access_token.token}",
+          })
       end
     end
   end

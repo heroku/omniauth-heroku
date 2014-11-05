@@ -28,6 +28,15 @@ RSpec.configure do |config|
   end
 
   def make_app(omniauth_heroku_options={})
+    client_id     = ENV["HEROKU_OAUTH_ID"]
+    client_secret = ENV["HEROKU_OAUTH_SECRET"]
+    if omniauth_heroku_options.has_key?(:client_id)
+      client_id = omniauth_heroku_options.delete(:client_id)
+    end
+    if omniauth_heroku_options.has_key?(:client_secret)
+      client_secret = omniauth_heroku_options.delete(:client_secret)
+    end
+
     Sinatra.new do
       configure do
         enable :sessions
@@ -36,8 +45,7 @@ RSpec.configure do |config|
       end
 
       use OmniAuth::Builder do
-        provider :heroku, ENV["HEROKU_OAUTH_ID"], ENV["HEROKU_OAUTH_SECRET"],
-          omniauth_heroku_options
+        provider :heroku, client_id, client_secret, omniauth_heroku_options
       end
 
       get "/auth/heroku/callback" do

@@ -68,4 +68,22 @@ describe OmniAuth::Strategies::Heroku do
     assert_equal "John", omniauth_env["info"]["name"]
     assert_equal account_info, omniauth_env["extra"]
   end
+
+  describe "error handling" do
+    it "renders an error when client_id is not informed" do
+      @app = make_app(client_id: nil)
+      get "/auth/heroku"
+      assert_equal 302, last_response.status
+      redirect = URI.parse(last_response.headers["Location"])
+      assert_equal "/auth/failure", redirect.path
+    end
+
+    it "renders an error when client_secret is not informed" do
+      @app = make_app(client_secret: "") # should also handle empty strings
+      get "/auth/heroku"
+      assert_equal 302, last_response.status
+      redirect = URI.parse(last_response.headers["Location"])
+      assert_equal "/auth/failure", redirect.path
+    end
+  end
 end

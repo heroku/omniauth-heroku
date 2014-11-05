@@ -44,6 +44,18 @@ module OmniAuth
         end
       end
 
+      # override method in OmniAuth::Strategies::OAuth2 to error
+      # when we don't have a client_id or secret:
+      def request_phase
+        if missing_client_id?
+          fail!(:missing_client_id)
+        elsif missing_client_secret?
+          fail!(:missing_client_secret)
+        else
+          super
+        end
+      end
+
       def account_info
         @account_info ||= MultiJson.decode(heroku_api.get("/account").body)
       end
@@ -55,6 +67,14 @@ module OmniAuth
             "Accept" => "application/vnd.heroku+json; version=3",
             "Authorization" => "Bearer #{access_token.token}",
           })
+      end
+
+      def missing_client_id?
+        [nil, ""].include?(options.client_id)
+      end
+
+      def missing_client_secret?
+        [nil, ""].include?(options.client_secret)
       end
     end
   end

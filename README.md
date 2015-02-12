@@ -70,9 +70,8 @@ This will trim down the permissions associated to the access token given back to
 
 ```ruby
 class Myapp < Sinatra::Application
-  configure do
-    enable :sessions
-  end
+
+  use Rack::Session::Cookie, secret: ENV["SESSION_SECRET"]
 
   use OmniAuth::Builder do
     provider :heroku, ENV["HEROKU_OAUTH_ID"], ENV["HEROKU_OAUTH_SECRET"]
@@ -89,6 +88,9 @@ class Myapp < Sinatra::Application
   end
 end
 ```
+
+Note that we're explicitly calling `Rack::Session::Cookie` with a secret. Using `enable :sessions` is not recommended because the secret is generated randomly, and not reused across processes – so your users can lose their session whenever your app restarts.
+
 
 ## Example - Rails
 

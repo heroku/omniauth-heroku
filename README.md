@@ -83,6 +83,8 @@ class Myapp < Sinatra::Application
 
   get "/auth/heroku/callback" do
     access_token = env['omniauth.auth']['credentials']['token']
+    # DO NOT store this token in an unencrypted cookie session
+    # Please read "A note on security" below!
     heroku_api = Heroku::API.new(api_key: access_token)
     "You have #{heroku_api.get_apps.body.size} apps"
   end
@@ -121,6 +123,8 @@ class SessionsController < ApplicationController
 
   def create
     access_token = request.env['omniauth.auth']['credentials']['token']
+    # DO NOT store this token in an unencrypted cookie session
+    # Please read "A note on security" below!
     heroku_api = Heroku::API.new(api_key: access_token)
     @apps = heroku_api.get_apps.body
   end
@@ -141,11 +145,9 @@ And view:
 
 ## A note on security
 
-Be careful if you intend to store access tokens in cookie-based sessions.
+**Make sure your cookie session is encrypted before storing sensitive information on it, like access tokens**. [encrypted_cookie](https://github.com/cvonkleist/encrypted_cookie) is a popular gem to do that in Ruby.
 
-Many web frameworks offer protection against session tampering, but still store sessions with no encryption. This allows attackers with some access to the user session to obtain valuable information from cookies.
-
-Rails, Sinatra and others can be configured to encrypt cookies, but don't do it by default. So make sure to encrypt cookie-based sessions before storing confidential data on it!
+Both Rails and Sinatra take a cookie secret, but that is only used to protect against tampering; any information stored on standard cookie sessions can easily be read from the client side, which can be further exploited to leak credentials off your app.
 
 
 ## Meta

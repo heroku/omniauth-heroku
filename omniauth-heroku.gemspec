@@ -9,7 +9,7 @@ Gem::Specification.new do |gem|
 
   gem.files         = Dir["README.md", "LICENSE", "lib/**/*"]
   gem.require_path  = "lib"
-  gem.version       = "0.2.0"
+  gem.version       = "0.3.0"
 
   gem.add_dependency "omniauth", "~> 1.2"
   gem.add_dependency "omniauth-oauth2", "~> 1.2"

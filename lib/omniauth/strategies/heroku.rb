@@ -56,6 +56,15 @@ module OmniAuth
         end
       end
 
+      def authorize_params
+        super.tap do |params|
+          # Allow the scope to be determined dynamically based on the request.
+          if params.scope.respond_to?(:call)
+            params.scope = params.scope.call(request)
+          end
+        end
+      end
+
       def account_info
         @account_info ||= MultiJson.decode(heroku_api.get("/account").body)
       end

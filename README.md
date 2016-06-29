@@ -88,6 +88,15 @@ end
 This will trim down the permissions associated to the access token given back
 to you.
 
+The Oauth scope can also be decided dynamically at runtime. For example, you could use a `scope` GET parameter if it exists, and revert to a default `scope` if it does not:
+
+```ruby
+use OmniAuth::Builder do
+  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET'],
+    scope: lambda { |request| request.params['scope'] || 'identity' }
+end
+```
+
 
 ## Example - Sinatra
 

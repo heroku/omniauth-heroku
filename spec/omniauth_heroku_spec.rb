@@ -19,13 +19,38 @@ describe OmniAuth::Strategies::Heroku do
     get "/auth/heroku"
     assert_equal 302, last_response.status
     redirect = URI.parse(last_response.headers["Location"])
-    redirect_params = CGI::parse(redirect.query)
+    redirect_params = CGI.parse(redirect.query)
     assert_equal "https", redirect.scheme
     assert_equal "id.heroku.com", redirect.host
     assert_equal [ENV["HEROKU_OAUTH_ID"]], redirect_params["client_id"]
     assert_equal ["code"], redirect_params["response_type"]
     assert_equal ["http://example.org/auth/heroku/callback"],
       redirect_params["redirect_uri"]
+  end
+
+  it "allows the scope to be determined dynamically" do
+    @app = make_app(scope: lambda { |request| request.params['scope'] || 'identity' })
+    # Pass the scope dynamically.
+    get "/auth/heroku?scope=write-protected"
+    assert_equal 302, last_response.status
+    redirect = URI.parse(last_response.headers["Location"])
+    redirect_params = CGI.parse(redirect.query)
+    assert_equal ["write-protected"], redirect_params["scope"]
+    # Use the default scope.
+    get "/auth/heroku"
+    assert_equal 302, last_response.status
+    redirect = URI.parse(last_response.headers["Location"])
+    redirect_params = CGI.parse(redirect.query)
+    assert_equal ["identity"], redirect_params["scope"]
+  end
+
+  it "allows the scope to be determined statically" do
+    @app = make_app(scope: "read-protected")
+    get "/auth/heroku"
+    assert_equal 302, last_response.status
+    redirect = URI.parse(last_response.headers["Location"])
+    redirect_params = CGI.parse(redirect.query)
+    assert_equal ["read-protected"], redirect_params["scope"]
   end
 
   it "receives the callback" do

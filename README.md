@@ -12,8 +12,9 @@ Mount this with your Rack application (be it Rails or Sinatra) to simplify the
 This is intended for apps already using OmniAuth, for apps that authenticate
 against more than one service (eg: Heroku and GitHub), or apps that have
 specific needs on session management. If your app doesn't fall in any of these
-you should consider using [Heroku
-Bouncer](https://github.com/heroku/heroku-bouncer) instead.
+you should consider using [Heroku Bouncer][heroku-bouncer] instead.
+
+[heroku-bouncer]: https://github.com/heroku/heroku-bouncer
 
 
 ## Configuration
@@ -22,7 +23,7 @@ OmniAuth works as a Rack middleware. Mount this Heroku adapter with:
 
 ```ruby
 use OmniAuth::Builder do
-  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET']
+  provider :heroku, ENV.fetch("HEROKU_OAUTH_ID"), ENV.fetch("HEROKU_OAUTH_SECRET")
 end
 ```
 
@@ -43,8 +44,9 @@ refresh token and an access token (identified just as `"token"`) to the
 account.
 
 We recommend using this access token together with
-[Heroku.rb](https://github.com/heroku/heroku.rb) to make API calls on behalf of
-the user.
+[Heroku.rb][heroku-ruby-client] to make API calls on behalf of the user.
+
+[heroku-ruby-client]: https://github.com/heroku/heroku.rb
 
 Refer to the examples below to see how these work.
 
@@ -56,31 +58,34 @@ the user email address and name, use the `fetch_info` option, like:
 
 ```ruby
 use OmniAuth::Builder do
-  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET'],
+  provider :heroku, ENV.fetch("HEROKU_OAUTH_ID"), ENV.fetch("HEROKU_OAUTH_SECRET"),
     fetch_info: true
 end
 ```
 
-This sets name and email in the [omniauth auth
-hash](https://github.com/intridea/omniauth/wiki/Auth-Hash-Schema). You can
-access it from your app via `env["omniauth.auth"]["info"]`.
+This sets name and email in the [omniauth auth hash][auth-hash]. You can access
+it from your app via `env["omniauth.auth"]["info"]`.
 
-It will also add [additional Heroku account
-info](https://devcenter.heroku.com/articles/platform-api-reference#account) to
+[auth-hash]: https://github.com/intridea/omniauth/wiki/Auth-Hash-Schema
+
+It will also add [additional Heroku account info][platform-api] to
 `env["omniauth.auth"]["extra"]`.
+
+[platform-api]: https://devcenter.heroku.com/articles/platform-api-reference#account
 
 ### OAuth scopes
 
-[Heroku supports different OAuth
-scopes](https://devcenter.heroku.com/articles/oauth#scopes). By default this
+[Heroku supports different OAuth scopes][oauth-scopes]. By default this
 strategy will request global access to the account, but you're encouraged to
 request for less permissions when possible.
+
+[oauth-scopes]: https://devcenter.heroku.com/articles/oauth#scopes
 
 To do so, configure it like:
 
 ```ruby
 use OmniAuth::Builder do
-  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET'],
+  provider :heroku, ENV.fetch("HEROKU_OAUTH_ID"), ENV.fetch("HEROKU_OAUTH_SECRET"),
     scope: "identity"
 end
 ```
@@ -88,12 +93,14 @@ end
 This will trim down the permissions associated to the access token given back
 to you.
 
-The Oauth scope can also be decided dynamically at runtime. For example, you could use a `scope` GET parameter if it exists, and revert to a default `scope` if it does not:
+The Oauth scope can also be decided dynamically at runtime. For example, you
+could use a `scope` GET parameter if it exists, and revert to a default `scope`
+if it does not:
 
 ```ruby
 use OmniAuth::Builder do
-  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET'],
-    scope: lambda { |request| request.params['scope'] || 'identity' }
+  provider :heroku, ENV.fetch("HEROKU_OAUTH_ID"), ENV.fetch("HEROKU_OAUTH_SECRET"),
+    scope: ->(request) { request.params["scope"] || "identity" }
 end
 ```
 
@@ -102,10 +109,10 @@ end
 
 ```ruby
 class Myapp < Sinatra::Application
-  use Rack::Session::Cookie, secret: ENV["SESSION_SECRET"]
+  use Rack::Session::Cookie, secret: ENV.fetch("SESSION_SECRET")
 
   use OmniAuth::Builder do
-    provider :heroku, ENV["HEROKU_OAUTH_ID"], ENV["HEROKU_OAUTH_SECRET"]
+    provider :heroku, ENV.fetch("HEROKU_OAUTH_ID"), ENV.fetch("HEROKU_OAUTH_SECRET")
   end
 
   get "/" do
@@ -113,7 +120,7 @@ class Myapp < Sinatra::Application
   end
 
   get "/auth/heroku/callback" do
-    access_token = env['omniauth.auth']['credentials']['token']
+    access_token = env["omniauth.auth"]["credentials"]["token"]
     # DO NOT store this token in an unencrypted cookie session
     # Please read "A note on security" below!
     heroku_api = Heroku::API.new(api_key: access_token)
@@ -134,7 +141,7 @@ Under `config/initializers/omniauth.rb`:
 
 ```ruby
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :heroku, ENV['HEROKU_OAUTH_ID'], ENV['HEROKU_OAUTH_SECRET']
+  provider :heroku, ENV.fetch("HEROKU_OAUTH_ID"), ENV.fetch("HEROKU_OAUTH_SECRET")
 end
 ```
 
@@ -180,9 +187,10 @@ And view:
 ## A note on security
 
 **Make sure your cookie session is encrypted before storing sensitive
-information on it, like access tokens**.
-[encrypted_cookie](https://github.com/cvonkleist/encrypted_cookie) is a popular
-gem to do that in Ruby.
+information on it, like access tokens**. [encrypted_cookie][encrypted-cookie]
+is a popular gem to do that in Ruby.
+
+[encrypted-cookie]: https://github.com/cvonkleist/encrypted_cookie
 
 Both Rails and Sinatra take a cookie secret, but that is only used to protect
 against tampering; any information stored on standard cookie sessions can

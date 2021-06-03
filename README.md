@@ -44,9 +44,9 @@ refresh token and an access token (identified just as `"token"`) to the
 account.
 
 We recommend using this access token together with
-[Heroku.rb][heroku-ruby-client] to make API calls on behalf of the user.
+the [Heroku Platform API gem][heroku-ruby-client] to make API calls on behalf of the user.
 
-[heroku-ruby-client]: https://github.com/heroku/heroku.rb
+[heroku-ruby-client]: https://github.com/heroku/platform-api
 
 Refer to the examples below to see how these work.
 

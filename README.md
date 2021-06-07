@@ -123,8 +123,8 @@ class Myapp < Sinatra::Application
     access_token = env["omniauth.auth"]["credentials"]["token"]
     # DO NOT store this token in an unencrypted cookie session
     # Please read "A note on security" below!
-    heroku_api = Heroku::API.new(api_key: access_token)
-    "You have #{heroku_api.get_apps.body.size} apps"
+    heroku = PlatformAPI.connect_oauth(access_token)
+    "You have #{heroku.app.list.count} apps"
   end
 end
 ```
@@ -166,8 +166,8 @@ class SessionsController < ApplicationController
     access_token = request.env['omniauth.auth']['credentials']['token']
     # DO NOT store this token in an unencrypted cookie session
     # Please read "A note on security" below!
-    heroku_api = Heroku::API.new(api_key: access_token)
-    @apps = heroku_api.get_apps.body
+    heroku = PlatformAPI.connect_oauth(access_token)
+    @apps = heroku.app.list
   end
 end
 ```

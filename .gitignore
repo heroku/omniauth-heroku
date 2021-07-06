@@ -1,17 +1,16 @@
-*.gem
-*.rbc
-.bundle
-.config
-.yardoc
-Gemfile.lock
-InstalledFiles
-_yardoc
-coverage
-doc/
-lib/bundler/man
-/pkg
-rdoc
-spec/reports
-test/tmp
-test/version_tmp
-tmp
+# Ignore all logfiles and tempfiles
+/coverage/
+/log/
+/spec/reports
+/tmp/
+/tags
+
+# Package and dependency caches
+/.bundle
+/Gemfile.lock
+/pkg/
+
+# Generated documentation
+/doc/
+/.yardoc
+/_yardoc/

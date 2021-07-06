@@ -1,7 +1,6 @@
 # OmniAuth Heroku
 
-[![Build Status](https://travis-ci.org/heroku/omniauth-heroku.svg?branch=master)](https://travis-ci.org/heroku/omniauth-heroku)
-
+[![Build Status](https://github.com/heroku/omniauth-heroku/actions/workflows/ci.yml/badge.svg)](https://github.com/heroku/omniauth-heroku/actions)
 
 [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating
 Heroku users.

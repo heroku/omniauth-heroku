@@ -90,20 +90,17 @@ use OmniAuth::Builder do
 end
 ```
 
-This will trim down the permissions associated to the access token given back
-to you.
+This will trim down the permissions associated to the access token given back to you.
 
-The Oauth scope can also be decided dynamically at runtime. For example, you
-could use a `scope` GET parameter if it exists, and revert to a default `scope`
-if it does not:
+The OAuth scope can also be decided dynamically at runtime.
+For example, you could use a `scope` parameter from the request, if it exists, with a default value if it does not:
 
 ```ruby
 use OmniAuth::Builder do
   provider :heroku, ENV.fetch("HEROKU_OAUTH_ID"), ENV.fetch("HEROKU_OAUTH_SECRET"),
-    scope: ->(request) { request.params["scope"] || "identity" }
+    scope: ->(env) { Rack::Request.new(env).params["scope"] || "identity" }
 end
 ```
-
 
 ## Example - Sinatra
 

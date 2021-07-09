@@ -30,7 +30,7 @@ describe OmniAuth::Strategies::Heroku do
   end
 
   it "allows the scope to be determined dynamically" do
-    @app = make_app(scope: ->(request) { request.params["scope"] || "identity" })
+    @app = make_app(scope: ->(env) { Rack::Request.new(env).params["scope"] || "identity" })
 
     get "/auth/heroku?scope=write-protected"
 

@@ -1,6 +1,7 @@
 # OmniAuth Heroku
 
 [![Build Status](https://github.com/heroku/omniauth-heroku/actions/workflows/ci.yml/badge.svg)](https://github.com/heroku/omniauth-heroku/actions)
+[![Gem Version](https://badge.fury.io/rb/omniauth-heroku.svg)](https://badge.fury.io/rb/omniauth-heroku)
 
 [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating
 Heroku users.

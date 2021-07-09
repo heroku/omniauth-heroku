@@ -13,7 +13,7 @@ require "rack/test"
 require "sinatra"
 require "webmock/rspec"
 
-Dir["./spec/support/*.rb"].each { |f| require f }
+Dir["./spec/support/*.rb"].sort.each { |f| require f }
 
 WebMock.disable_net_connect!
 
@@ -27,8 +27,8 @@ RSpec.configure do |config|
     @app || make_app
   end
 
-  def make_app(omniauth_heroku_options={})
-    client_id     = ENV["HEROKU_OAUTH_ID"]
+  def make_app(omniauth_heroku_options = {})
+    client_id = ENV["HEROKU_OAUTH_ID"]
     client_secret = ENV["HEROKU_OAUTH_SECRET"]
     if omniauth_heroku_options.has_key?(:client_id)
       client_id = omniauth_heroku_options.delete(:client_id)
@@ -49,7 +49,7 @@ RSpec.configure do |config|
       end
 
       get "/auth/heroku/callback" do
-        MultiJson.encode(env['omniauth.auth'])
+        MultiJson.encode(env["omniauth.auth"])
       end
     end
   end

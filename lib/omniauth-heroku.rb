@@ -1,1 +1,2 @@
-require 'omniauth/strategies/heroku'
+require "omniauth/heroku/version"
+require "omniauth/strategies/heroku"

@@ -1,16 +1,14 @@
-require 'omniauth-oauth2'
+require "omniauth-oauth2"
 
 module OmniAuth
   module Strategies
     class Heroku < OmniAuth::Strategies::OAuth2
       AuthUrl = ENV["HEROKU_AUTH_URL"] || "https://id.heroku.com"
-      ApiUrl  = ENV["HEROKU_API_URL"]  || "https://api.heroku.com"
+      ApiUrl = ENV["HEROKU_API_URL"] || "https://api.heroku.com"
 
-      option :client_options, {
-        site:          AuthUrl,
+      option(:client_options, {site: AuthUrl,
         authorize_url: "#{AuthUrl}/oauth/authorize",
-        token_url:     "#{AuthUrl}/oauth/token"
-      }
+        token_url: "#{AuthUrl}/oauth/token"})
 
       # whether we should make another API call to Heroku to fetch
       # additional account info like the real user name and email
@@ -22,17 +20,17 @@ module OmniAuth
 
       info do
         if options.fetch_info
-          email_hash        = Digest::MD5.hexdigest(account_info['email'].to_s)
+          email_hash = Digest::MD5.hexdigest(account_info["email"].to_s)
           default_image_url = "https://dashboard.heroku.com/ninja-avatar-48x48.png"
-          image_url         = "https://secure.gravatar.com/avatar/#{email_hash}.png?d=#{default_image_url}"
+          image_url = "https://secure.gravatar.com/avatar/#{email_hash}.png?d=#{default_image_url}"
 
           {
-            name:  account_info["name"],
+            name: account_info["name"],
             email: account_info["email"],
-            image: image_url,
+            image: image_url
           }
         else
-          { name: "Heroku user" } # only mandatory field
+          {name: "Heroku user"} # only mandatory field
         end
       end
 
@@ -74,8 +72,9 @@ module OmniAuth
           url: ApiUrl,
           headers: {
             "Accept" => "application/vnd.heroku+json; version=3",
-            "Authorization" => "Bearer #{access_token.token}",
-          })
+            "Authorization" => "Bearer #{access_token.token}"
+          }
+        )
       end
 
       def missing_client_id?

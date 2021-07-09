@@ -10,6 +10,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Standardize syntax and style via [Standard.rb](https://github.com/testdouble/standard)
 
+### Breaking
+
+- Require Ruby >= 2.3.0. We already only supported this, but weren't explicit about it.
+
 ## [0.4.1] 2021-07-06
 
 ### Changed

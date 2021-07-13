@@ -102,6 +102,30 @@ use OmniAuth::Builder do
 end
 ```
 
+#### Upgrading to 1.0+
+
+Versions before `1.0` allowed you to pass `:scope` option as a block, just as today.
+However, that block received a `Rack::Request` instance, rather than the `Rack` `env`.
+If you used the `Rack::Request` argument in your `:scope` block you can update your code to create a new instance, from the `env`.
+
+For example, `< 1.0` code that looked like this:
+
+```ruby
+use OmniAuth::Builder do
+  provider :heroku, ENV.fetch("HEROKU_OAUTH_ID"), ENV.fetch("HEROKU_OAUTH_SECRET"),
+    scope: ->(request) { request.params["scope"] }
+end
+```
+
+need to be updated to something like this:
+
+```ruby
+use OmniAuth::Builder do
+  provider :heroku, ENV.fetch("HEROKU_OAUTH_ID"), ENV.fetch("HEROKU_OAUTH_SECRET"),
+    scope: ->(env) { Rack::Request.new(env).params["scope"] }
+end
+```
+
 ## Example - Sinatra
 
 ```ruby
@@ -160,7 +184,7 @@ class SessionsController < ApplicationController
   end
 
   def create
-    access_token = request.env['omniauth.auth']['credentials']['token']
+    access_token = request.env["omniauth.auth"]["credentials"]["token"]
     # DO NOT store this token in an unencrypted cookie session
     # Please read "A note on security" below!
     heroku = PlatformAPI.connect_oauth(access_token)

@@ -1,0 +1,5 @@
+source "https://www.rubygems.org"
+
+gemspec
+
+gem "omniauth", "~> 1.9"

@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.executables = []
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency("omniauth", "~> 1.9.0")
+  spec.add_runtime_dependency("omniauth", [">= 1.9", "< 3"])
   spec.add_runtime_dependency("omniauth-oauth2", "~> 1.7")
 
   spec.add_development_dependency("multi_json", "~> 1.12")

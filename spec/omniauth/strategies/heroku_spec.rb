@@ -34,7 +34,7 @@ RSpec.describe OmniAuth::Strategies::Heroku do
       expect(strategy.authorize_params).not_to have_key("scope")
     end
 
-    it "can use a staic :scope" do
+    it "can use a static :scope option" do
       strategy = described_class.new(app, "OAuthId", "OAuthSecret", scope: "boring-scope")
 
       expect(strategy.authorize_params.fetch("scope")).to eq("boring-scope")

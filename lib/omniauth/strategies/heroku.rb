@@ -3,16 +3,22 @@ require "omniauth-oauth2"
 module OmniAuth
   module Strategies
     class Heroku < OmniAuth::Strategies::OAuth2
-      AuthUrl = ENV["HEROKU_AUTH_URL"] || "https://id.heroku.com"
-      ApiUrl = ENV["HEROKU_API_URL"] || "https://api.heroku.com"
+      # This style of overriding the default means it can only be done when the class is loaded.
+      # Which is problematic for testing, and a bit against the grain of how the base class
+      # expects this to work, where consumers would explicitly override by passing in the option.
+      AUTH_URL = ENV.fetch("HEROKU_AUTH_URL", "https://id.heroku.com")
+      private_constant :AUTH_URL
 
-      option(:client_options, {site: AuthUrl,
-        authorize_url: "#{AuthUrl}/oauth/authorize",
-        token_url: "#{AuthUrl}/oauth/token"})
+      option(:client_options, {
+        site: AUTH_URL,
+        authorize_url: "#{AUTH_URL}/oauth/authorize",
+        token_url: "#{AUTH_URL}/oauth/token"
+      })
 
       # whether we should make another API call to Heroku to fetch
       # additional account info like the real user name and email
-      option :fetch_info
+      # XXX: How is this different from the :skip_info Option?
+      option :fetch_info, false
 
       uid do
         access_token.params["user_id"]
@@ -54,22 +60,22 @@ module OmniAuth
         end
       end
 
-      def authorize_params
-        super.tap do |params|
-          # Allow the scope to be determined dynamically based on the request.
-          if params.scope.respond_to?(:call)
-            params.scope = params.scope.call(request)
-          end
-        end
-      end
+      private
+
+      DEFAULT_API_URL = "https://api.heroku.com"
+      private_constant :DEFAULT_API_URL
 
       def account_info
         @account_info ||= MultiJson.decode(heroku_api.get("/account").body)
       end
 
+      def api_url
+        @api_url ||= ENV.fetch("HEROKU_API_URL", DEFAULT_API_URL)
+      end
+
       def heroku_api
         @heroku_api ||= Faraday.new(
-          url: ApiUrl,
+          url: api_url,
           headers: {
             "Accept" => "application/vnd.heroku+json; version=3",
             "Authorization" => "Bearer #{access_token.token}"

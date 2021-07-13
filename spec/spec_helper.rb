@@ -1,56 +1,47 @@
-ENV["SESSION_SECRET"] = "abcdefghjij"
-ENV["HEROKU_OAUTH_ID"] = "12345"
-ENV["HEROKU_OAUTH_SECRET"] = "klmnopqrstu"
-
-require "rubygems"
 require "bundler"
 Bundler.setup(:default, :test)
-require "omniauth/strategies/heroku"
 
-require "cgi"
-require "rspec"
-require "rack/test"
-require "sinatra"
+require "omniauth-heroku"
 require "webmock/rspec"
 
 Dir["./spec/support/*.rb"].sort.each { |f| require f }
 
 WebMock.disable_net_connect!
-
 OmniAuth.config.logger = Logger.new(StringIO.new)
 
 RSpec.configure do |config|
-  config.include Rack::Test::Methods
-  config.expect_with :minitest
-
-  def app
-    @app || make_app
+  config.expect_with :rspec do |expectations|
+    # This option will default to `true` in RSpec 4. It makes the `description`
+    # and `failure_message` of custom matchers include text for helper methods
+    # defined using `chain`, e.g.:
+    #     be_bigger_than(2).and_smaller_than(4).description
+    #     # => "be bigger than 2 and smaller than 4"
+    # ...rather than:
+    #     # => "be bigger than 2"
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
 
-  def make_app(omniauth_heroku_options = {})
-    client_id = ENV["HEROKU_OAUTH_ID"]
-    client_secret = ENV["HEROKU_OAUTH_SECRET"]
-    if omniauth_heroku_options.has_key?(:client_id)
-      client_id = omniauth_heroku_options.delete(:client_id)
-    end
-    if omniauth_heroku_options.has_key?(:client_secret)
-      client_secret = omniauth_heroku_options.delete(:client_secret)
-    end
-
-    Sinatra.new do
-      configure do
-        enable :sessions
-        set :show_exceptions, false
-        set :session_secret, ENV["SESSION_SECRET"]
-      end
-
-      use OmniAuth::Builder do
-        provider :heroku, client_id, client_secret, omniauth_heroku_options
-      end
-
-      get "/auth/heroku/callback" do
-        MultiJson.encode(env["omniauth.auth"])
-      end
-    end
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
   end
+
+  # This option will default to `:apply_to_host_groups` in RSpec 4 (and will
+  # have no way to turn it off -- the option exists only for backwards
+  # compatibility in RSpec 3). It causes shared context metadata to be
+  # inherited by the metadata hash of host groups and examples, rather than
+  # triggering implicit auto-inclusion in groups with matching metadata.
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  config.example_status_persistence_file_path = "spec/rspec-status.txt"
+  config.disable_monkey_patching!
+  config.warnings = true
+
+  if config.files_to_run.one?
+    # Use the documentation formatter for detailed output,
+    # unless a formatter has already been configured
+    # (e.g. via a command-line flag).
+    config.default_formatter = "doc"
+  end
+  config.order = :random
+  Kernel.srand config.seed
 end

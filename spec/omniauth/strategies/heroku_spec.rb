@@ -1,123 +1,181 @@
-describe OmniAuth::Strategies::Heroku do
-  let(:token) { "6e441b93-4c6d-4613-abed-b9976e7cff6c" }
-  let(:user_id) { "ddc4beff-f08f-4856-99d2-ba5ac63c3eb9" }
+RSpec.describe OmniAuth::Strategies::Heroku do
+  let(:strategy) { described_class.new(app, "OAuthId", "OAuthSecret") }
+  let(:app) { ->(_env) { [200, {}, ["Hello."]] } }
 
-  before do
-    # stub the API call made by the strategy to start the oauth dance
-    stub_request(:post, "https://id.heroku.com/oauth/token")
-      .to_return(
-        headers: {"Content-Type" => "application/json"},
-        body: MultiJson.encode(
-          access_token: token,
-          expires_in: 3600,
-          user_id: user_id
-        )
-      )
+  describe "client options" do
+    let(:client) { strategy.client }
+
+    it "defaults site" do
+      expect(client.site).to eq("https://id.heroku.com")
+    end
+
+    it "defaults authorize url" do
+      expect(client.authorize_url).to eq("https://id.heroku.com/oauth/authorize")
+    end
+
+    it "defaults token url" do
+      expect(client.token_url).to eq("https://id.heroku.com/oauth/token")
+    end
+
+    # NOTE: Due to the design of the base OmniAuth::Strategy we don't have a good way to test
+    # overriding the defaults via ENV Vars. But we've supported overriding that way since...
+    # forever, basically, we still need to support it until we make it a clear breaking change.
+    # So we'll ignore that case, I guess 🤷
   end
 
-  it "redirects to start the OAuth flow" do
-    get "/auth/heroku"
+  describe "#authorize_params" do
+    around do |example|
+      OmniAuth.config.test_mode = true
+      example.call
+      OmniAuth.config.test_mode = false
+    end
 
-    assert_equal 302, last_response.status
-    redirect = URI.parse(last_response.headers["Location"])
-    redirect_params = CGI.parse(redirect.query)
-    assert_equal "https", redirect.scheme
-    assert_equal "id.heroku.com", redirect.host
-    assert_equal [ENV["HEROKU_OAUTH_ID"]], redirect_params["client_id"]
-    assert_equal ["code"], redirect_params["response_type"]
-    assert_equal ["http://example.org/auth/heroku/callback"],
-      redirect_params["redirect_uri"]
+    it "does not add a default scope" do
+      expect(strategy.authorize_params).not_to have_key("scope")
+    end
+
+    it "can use a staic :scope" do
+      strategy = described_class.new(app, "OAuthId", "OAuthSecret", scope: "boring-scope")
+
+      expect(strategy.authorize_params.fetch("scope")).to eq("boring-scope")
+    end
+
+    it "can dynamically determine the :scope option" do
+      strategy = described_class.new(app, "OAuthId", "OAuthSecret", scope: ->(_env) { "magic-scope" })
+
+      expect(strategy.authorize_params.fetch("scope")).to eq("magic-scope")
+    end
   end
 
-  it "allows the scope to be determined dynamically" do
-    @app = make_app(scope: ->(env) { Rack::Request.new(env).params["scope"] || "identity" })
+  describe "#extra" do
+    let(:token) { "some-uuid" }
 
-    get "/auth/heroku?scope=write-protected"
+    it "does not fetch account info by default" do
+      expect(strategy.extra).to be_empty
+    end
 
-    assert_equal 302, last_response.status
-    redirect = URI.parse(last_response.headers["Location"])
-    redirect_params = CGI.parse(redirect.query)
-    assert_equal ["write-protected"], redirect_params["scope"]
-    # Use the default scope.
-    get "/auth/heroku"
-    assert_equal 302, last_response.status
-    redirect = URI.parse(last_response.headers["Location"])
-    redirect_params = CGI.parse(redirect.query)
-    assert_equal ["identity"], redirect_params["scope"]
+    it "fetches account info when :fetch_info option is true" do
+      strategy = described_class.new(app, "OAuthId", "OAuthSecret", fetch_info: true)
+      strategy.access_token = OpenStruct.new(token: token)
+
+      account_info = {"email" => "john@example.org", "name" => "John"}
+
+      stub_request(:get, "https://api.heroku.com/account")
+        .with(headers: {"Authorization" => "Bearer #{token}"})
+        .to_return(body: MultiJson.encode(account_info))
+
+      expect(strategy.extra).to include(account_info)
+    end
   end
 
-  it "allows the scope to be determined statically" do
-    @app = make_app(scope: "read-protected")
+  describe "#info" do
+    let(:token) { "some-uuid" }
 
-    get "/auth/heroku"
+    it "does not fetch account info by default" do
+      expect(strategy.info).to eq(name: "Heroku user")
+    end
 
-    assert_equal 302, last_response.status
-    redirect = URI.parse(last_response.headers["Location"])
-    redirect_params = CGI.parse(redirect.query)
-    assert_equal ["read-protected"], redirect_params["scope"]
+    it "fetches account info when :fetch_info option is true" do
+      strategy = described_class.new(app, "OAuthId", "OAuthSecret", fetch_info: true)
+      strategy.access_token = OpenStruct.new(token: token)
+
+      account_info = {"email" => "john@example.org", "name" => "John"}
+
+      stub_request(:get, "https://api.heroku.com/account")
+        .with(headers: {"Authorization" => "Bearer #{token}"})
+        .to_return(body: MultiJson.encode(account_info))
+
+      aggregate_failures do
+        expect(strategy.info).to include(name: "John", email: "john@example.org")
+        expect(strategy.info.fetch(:image)).to match(%r{secure\.gravatar\.com/avatar/.+})
+      end
+    end
   end
 
-  it "receives the callback" do
-    # trigger the callback setting the state as a param and in the session
-    state = SecureRandom.hex(8)
-    get "/auth/heroku/callback", {"state" => state},
-      {"rack.session" => {"omniauth.state" => state}}
+  describe "#uid" do
+    it "is the user_id from the Access Token" do
+      strategy.access_token = OpenStruct.new(params: {"user_id" => "some-user-id"})
 
-    assert_equal 200, last_response.status
-    omniauth_env = MultiJson.decode(last_response.body)
-    assert_equal "heroku", omniauth_env["provider"]
-    assert_equal user_id, omniauth_env["uid"]
-    assert_equal "Heroku user", omniauth_env["info"]["name"]
-  end
-
-  it "fetches additional info when requested" do
-    # change the app being tested:
-    @app = make_app(fetch_info: true)
-
-    # stub the API call to heroku
-    account_info = {
-      "email" => "john@example.org",
-      "name" => "John"
-    }
-    stub_request(:get, "https://api.heroku.com/account")
-      .with(headers: {"Authorization" => "Bearer #{token}"})
-      .to_return(body: MultiJson.encode(account_info))
-
-    # hit the OAuth callback
-    state = SecureRandom.hex(8)
-
-    get "/auth/heroku/callback", {"state" => state},
-      {"rack.session" => {"omniauth.state" => state}}
-    assert_equal 200, last_response.status
-
-    # now make sure there's additional info in the omniauth env
-    omniauth_env = MultiJson.decode(last_response.body)
-    assert_equal "heroku", omniauth_env["provider"]
-    assert_equal user_id, omniauth_env["uid"]
-    assert_equal "john@example.org", omniauth_env["info"]["email"]
-    assert_equal "John", omniauth_env["info"]["name"]
-    assert_equal account_info, omniauth_env["extra"]
+      expect(strategy.uid).to eq("some-user-id")
+    end
   end
 
   describe "error handling" do
-    it "renders an error when client_id is not informed" do
-      @app = make_app(client_id: nil)
+    let(:env) {
+      {
+        "REQUEST_METHOD" => "POST",
+        "PATH_INFO" => "/auth/heroku",
+        "rack.session" => {},
+        "rack.input" => StringIO.new("test=true")
+      }
+    }
 
-      get "/auth/heroku"
-
-      assert_equal 302, last_response.status
-      redirect = URI.parse(last_response.headers["Location"])
-      assert_equal "/auth/failure", redirect.path
+    around do |example|
+      # OmniAuth >= 2.0.0 has a configurable request validations phase
+      # used to validate XSRF, etc... When that's available we'll turn
+      # it off for this set of tests since we're trying to test our own
+      # validations, which would run after the request validation. On
+      # older versions it didn't exist, so don't worry about it!
+      if defined?(OmniAuth.config.request_validation_phase)
+        phase = OmniAuth.config.request_validation_phase
+        OmniAuth.config.request_validation_phase = false
+        example.call
+        OmniAuth.config.request_validation_phase = phase
+      else
+        example.call
+      end
     end
 
-    it "renders an error when client_secret is not informed" do
-      @app = make_app(client_secret: "") # should also handle empty strings
+    it "fails when client_id is not provided" do
+      strategy = described_class.new(app, nil, "ClientSecret")
 
-      get "/auth/heroku"
+      status, headers, _body = strategy.call(env)
+      redirect = URI.parse(headers.fetch("Location"))
 
-      assert_equal 302, last_response.status
-      redirect = URI.parse(last_response.headers["Location"])
-      assert_equal "/auth/failure", redirect.path
+      aggregate_failures do
+        expect(status).to eq(302)
+        expect(redirect.path).to eq("/auth/failure")
+        expect(env.fetch("omniauth.error.type")).to eq(:missing_client_id)
+      end
+    end
+
+    it "fails when client_id is empty" do
+      strategy = described_class.new(app, "", "ClientSecret")
+
+      status, headers, _body = strategy.call(env)
+      redirect = URI.parse(headers.fetch("Location"))
+
+      aggregate_failures do
+        expect(status).to eq(302)
+        expect(redirect.path).to eq("/auth/failure")
+        expect(env.fetch("omniauth.error.type")).to eq(:missing_client_id)
+      end
+    end
+
+    it "fails when client_secret is not provided" do
+      strategy = described_class.new(app, "ClientId", nil)
+
+      status, headers, _body = strategy.call(env)
+      redirect = URI.parse(headers.fetch("Location"))
+
+      aggregate_failures do
+        expect(status).to eq(302)
+        expect(redirect.path).to eq("/auth/failure")
+        expect(env.fetch("omniauth.error.type")).to eq(:missing_client_secret)
+      end
+    end
+
+    it "fails when client_secret is empty" do
+      strategy = described_class.new(app, "ClientId", "")
+
+      status, headers, _body = strategy.call(env)
+      redirect = URI.parse(headers.fetch("Location"))
+
+      aggregate_failures do
+        expect(status).to eq(302)
+        expect(redirect.path).to eq("/auth/failure")
+        expect(env.fetch("omniauth.error.type")).to eq(:missing_client_secret)
+      end
     end
   end
 end

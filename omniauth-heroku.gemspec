@@ -32,11 +32,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency("omniauth", "~> 1.9.0")
   spec.add_runtime_dependency("omniauth-oauth2", "~> 1.7")
 
-  spec.add_development_dependency("minitest", "~> 5.8")
   spec.add_development_dependency("multi_json", "~> 1.12")
-  spec.add_development_dependency("rack-test", "~> 1.1")
   spec.add_development_dependency("rake", "~> 13.0")
   spec.add_development_dependency("rspec", "~> 3.4")
-  spec.add_development_dependency("sinatra", "~> 2.1")
   spec.add_development_dependency("webmock", "~> 3.13")
 end

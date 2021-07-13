@@ -2,6 +2,7 @@
 /coverage/
 /log/
 /spec/reports
+/spec/rspec-status.txt
 /tmp/
 /tags
 

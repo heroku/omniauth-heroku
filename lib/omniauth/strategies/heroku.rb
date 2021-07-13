@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "omniauth-oauth2"
 
 module OmniAuth
@@ -15,9 +17,8 @@ module OmniAuth
         token_url: "#{AUTH_URL}/oauth/token"
       })
 
-      # whether we should make another API call to Heroku to fetch
+      # Configure whether we make another API call to Heroku to fetch
       # additional account info like the real user name and email
-      # XXX: How is this different from the :skip_info Option?
       option :fetch_info, false
 
       uid do
@@ -27,8 +28,7 @@ module OmniAuth
       info do
         if options.fetch_info
           email_hash = Digest::MD5.hexdigest(account_info["email"].to_s)
-          default_image_url = "https://dashboard.heroku.com/ninja-avatar-48x48.png"
-          image_url = "https://secure.gravatar.com/avatar/#{email_hash}.png?d=#{default_image_url}"
+          image_url = "https://secure.gravatar.com/avatar/#{email_hash}.png?d=#{DEFAULT_IMAGE_URL}"
 
           {
             name: account_info["name"],
@@ -64,6 +64,9 @@ module OmniAuth
 
       DEFAULT_API_URL = "https://api.heroku.com"
       private_constant :DEFAULT_API_URL
+
+      DEFAULT_IMAGE_URL = "https://dashboard.heroku.com/ninja-avatar-48x48.png"
+      private_constant :DEFAULT_IMAGE_URL
 
       def account_info
         @account_info ||= MultiJson.decode(heroku_api.get("/account").body)

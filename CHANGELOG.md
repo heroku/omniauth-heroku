@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [1.0.0] 2021-07-14
+
 ### Changed
 
 - Support `omniauth` versions `>= 1.9` but `< 3`.
@@ -16,18 +18,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Loosen `omniauth-oauth2` requirement to allow `>= 1.7.0`.
   With this change, blocks give to dynamically determine the `:scope` argument will be passed the Rack `env`, rather than an instance of the `Rack::Request`.
-  You'll need to update your usages to create a new `Rack::Request` in the block:
-
-  ```ruby
-  use OmniAuth::Builder do
-    provider :heroku, ENV.fetch("HEROKU_OAUTH_ID"), ENV.fetch("HEROKU_OAUTH_SECRET"),
-      scope: ->(env) { Rack::Request.new(env).params["scope"] || "identity" }
-  end
-  ```
+  See the [Upgrading to 1.0 docs](README.md#upgrading-to-10) for more.
 - Remove `AuthUrl` and `ApiUrl` constants from `OmniAuth::Strategies::Heroku`. 
   These were internal details, not meant to be part of the public API.
-- Require Ruby >= 2.3.0.
-  We already only supported this, but weren't explicit about it.
+- Require Ruby `>= 2.3.0`.
+  We were only supporting that anyway, but now it's explicit.
+  However, we do recommend only running on [actively supported Rubies](https://www.ruby-lang.org/en/downloads/branches/).
 
 ## [0.4.1] 2021-07-06
 

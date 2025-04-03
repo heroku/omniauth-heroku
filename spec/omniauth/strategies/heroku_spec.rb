@@ -56,7 +56,7 @@ RSpec.describe OmniAuth::Strategies::Heroku do
 
     it "fetches account info when :fetch_info option is true" do
       strategy = described_class.new(app, "OAuthId", "OAuthSecret", fetch_info: true)
-      strategy.access_token = OpenStruct.new(token: token)
+      strategy.access_token = double(token: token)
 
       account_info = {"email" => "john@example.org", "name" => "John"}
 
@@ -77,7 +77,7 @@ RSpec.describe OmniAuth::Strategies::Heroku do
 
     it "fetches account info when :fetch_info option is true" do
       strategy = described_class.new(app, "OAuthId", "OAuthSecret", fetch_info: true)
-      strategy.access_token = OpenStruct.new(token: token)
+      strategy.access_token = double(token: token)
 
       account_info = {"email" => "john@example.org", "name" => "John"}
 
@@ -94,7 +94,7 @@ RSpec.describe OmniAuth::Strategies::Heroku do
 
   describe "#uid" do
     it "is the user_id from the Access Token" do
-      strategy.access_token = OpenStruct.new(params: {"user_id" => "some-user-id"})
+      strategy.access_token = double(params: {"user_id" => "some-user-id"})
 
       expect(strategy.uid).to eq("some-user-id")
     end

@@ -62,7 +62,7 @@ RSpec.describe OmniAuth::Strategies::Heroku do
 
       stub_request(:get, "https://api.heroku.com/account")
         .with(headers: {"Authorization" => "Bearer #{token}"})
-        .to_return(body: MultiJson.encode(account_info))
+        .to_return(body: JSON.generate(account_info))
 
       expect(strategy.extra).to include(account_info)
     end
@@ -83,7 +83,7 @@ RSpec.describe OmniAuth::Strategies::Heroku do
 
       stub_request(:get, "https://api.heroku.com/account")
         .with(headers: {"Authorization" => "Bearer #{token}"})
-        .to_return(body: MultiJson.encode(account_info))
+        .to_return(body: JSON.generate(account_info))
 
       aggregate_failures do
         expect(strategy.info).to include(name: "John", email: "john@example.org")

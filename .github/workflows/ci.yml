@@ -9,8 +9,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['4.0', '3.4', '3.3']
+        ruby: ['head', '4.0', '3.4', '3.3']
         gemfile: ["omniauth1", "omniauth2"]
+
+    continue-on-error: ${{ matrix.ruby == 'head' }}
 
     env: # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
       BUNDLE_GEMFILE: Gemfile-${{ matrix.gemfile }}

@@ -69,7 +69,7 @@ module OmniAuth
       private_constant :DEFAULT_IMAGE_URL
 
       def account_info
-        @account_info ||= MultiJson.decode(heroku_api.get("/account").body)
+        @account_info ||= JSON.parse(heroku_api.get("/account").body)
       end
 
       def api_url
